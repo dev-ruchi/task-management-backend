@@ -7,6 +7,15 @@ import Task from "../models/task.js";
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+    try {
+      const tasks = await Task.find();
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ message: "Server Error" });
+    }
+  });
+
 router.post("/", ...createTaskRules,  async (req, res) => {
     const errors = validationResult(req);
   
