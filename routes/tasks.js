@@ -3,7 +3,7 @@ import express from "express";
 import { validationResult } from "express-validator";
 import createTaskRules from "../rules/createTask.js";
 import Task from "../models/task.js";
-//import mongoose from "mongoose";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -15,6 +15,32 @@ router.get("/", async (req, res) => {
       res.status(500).json({ message: "Server Error" });
     }
   });
+
+  router.get("/:id", async (req, res) => {
+    const { id } = req.params;
+  
+    // Validate if the `id` is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid task ID" });
+    }
+  
+    try {
+      // Query the database for the task
+      const task = await Task.findById(id);
+  
+      if (!task) {
+        // Handle case when thestask is not found
+        return res.status(404).json({ message: "Task not found" });
+      }
+  
+      // If the task exists, return it
+      res.status(200).json(task);
+    } catch (error) {
+      // Handle server errors
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
+  });
+  
 
 router.post("/", ...createTaskRules,  async (req, res) => {
     const errors = validationResult(req);
