@@ -45,6 +45,35 @@ router.post("/", ...createTaskRules,  async (req, res) => {
       res.status(500).json({ message: "Server Error", error: error.message });
     }
   });
+
+  router.put("/:id", (req, res) => {
+    const errors = validationResult(req);
+  
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+  
+    const { taskTitle, priority, dueDate, status } = req.body;
+  
+    const updateTask = {
+        taskTitle,
+        priority,
+        dueDate,
+        status: status || false,
+    };
+  
+    Task.updateOne({ _id: req.params.id }, updateTask)
+      .then(() => {
+        res.status(200).json({
+          message: "Task updated successfully!",
+        });
+      })
+      .catch((error) => {
+        res.status(400).json({
+          error: error,
+        });
+      });
+  });
   
   export default router;
   
